@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livart Style - AI Search Result</title>
+    <style>
+        /* 기본 스타일 */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+        body { background-color: #fff; color: #333; }
+        ul { list-style: none; }
+        
+        /* 헤더 */
+        header {
+            display: flex; 
+            align-items: center; 
+            padding: 15px 277px;
+            border-bottom: 1px solid #eee; 
+            position: sticky; 
+            top: 0; 
+            background: #fff; 
+            z-index: 100;
+        }
+        .logo { font-size: 24px; font-weight: 800; color: #006699; margin-right: 40px; cursor: pointer; }
+        .nav-menu { display: flex; align-items: center; gap: 20px; flex-grow: 1; font-weight: 600; font-size: 14px; }
+        .nav-menu li.active { background: #333; color: #fff; padding: 5px 15px; border-radius: 20px; }
+
+        /* 헤더 검색창 스타일 */
+        .header-search-container {
+            display: flex;
+            align-items: center;
+            background-color: #f2f2f2;
+            border-radius: 25px;
+            padding: 2px 18px;
+            margin-right: 30px;
+            width: 240px;
+            height: 42px;
+            cursor: pointer; /* 클릭 가능함을 표시 */
+        }
+        .header-search-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .header-search-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        /* 헤더 아이콘 박스 */
+        .header-icons {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+        .icon-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #333;
+        }
+        .icon-box span {
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* 메인 컨테이너 */
+        main { 
+            max-width: 1366px; 
+            margin: 0 auto; 
+            padding: 40px 0; 
+        }
+
+        /* 초기 검색 화면 */
+        #search-initial-view { 
+            display: block; 
+            max-width: 900px; 
+            margin: 60px auto; 
+            padding: 0 20px;
+        }
+        .search-tabs {
+            display: flex; justify-content: center; background: #40a9d0;
+            width: fit-content; margin: 0 auto 30px; border-radius: 30px; padding: 4px;
+        }
+        .tab { padding: 10px 35px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .tab.normal { color: white; }
+        .tab.ai.active { background: white; color: #40a9d0; }
+
+        .search-input-box {
+            border-bottom: 2px solid #40a9d0; padding: 10px 0; margin-bottom: 40px;
+            display: flex; align-items: center;
+        }
+        .search-input-box input { border: none; width: 100%; font-size: 18px; outline: none; }
+
+        /* 최근/인기 검색어 레이아웃 */
+        .keyword-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 60px;
+            margin-top: 20px;
+        }
+        .keyword-box { flex: 1; }
+        .keyword-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .keyword-head h3 { font-size: 16px; font-weight: 700; color: #333; }
+        .keyword-head .sub-info { font-size: 12px; color: #999; }
+        .keyword-list { display: flex; flex-direction: column; gap: 16px; }
+        .keyword-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+        .keyword-item:hover span:first-child { text-decoration: underline; }
+        .del-btn {
+            width: 18px; height: 18px; border: 1px solid #ddd;
+            border-radius: 50%; color: #ccc; font-size: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .rank-info { display: flex; align-items: center; gap: 12px; }
+        .rank-num { font-weight: 700; width: 15px; }
+        .rank-stat { font-size: 10px; color: #bbb; }
+        .rank-stat.up { color: #ff4b4b; }
+        .rank-stat.down { color: #40a9d0; }
+
+        /* 결과 화면 */
+        #result-view { display: none; padding: 0 20px; }
+        .ai-result-box {
+            background: #f0f9ff; 
+            border: 1px solid #40a9d0; 
+            border-radius: 12px;
+            padding: 30px; 
+            margin-bottom: 40px;
+        }
+        .ai-title { color: #40a9d0; font-weight: bold; margin-bottom: 15px; font-size: 18px; }
+        .ai-desc { font-size: 15px; line-height: 1.8; color: #444; margin-bottom: 25px; min-height: 80px; } 
+        .related-keywords { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+        .keyword-tag { border: 1px solid #d1e5f0; padding: 6px 16px; border-radius: 20px; background: #fff; color: #666; cursor: pointer; }
+
+        .result-tabs { display: flex; border: 1px solid #eee; margin-bottom: 30px; background: #fafafa; }
+        .result-tabs div { flex: 1; text-align: center; padding: 18px; font-size: 15px; color: #888; border-right: 1px solid #eee; cursor: pointer; }
+        .result-tabs .active { background: #333; color: #fff; font-weight: bold; border-right: none; }
+        .filter-tags { display: flex; gap: 10px; margin-bottom: 25px; }
+        .filter-tag { border: 1px solid #eee; padding: 8px 15px; border-radius: 4px; font-size: 13px; color: #666; cursor: pointer; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 25px; }
+        .product-item { cursor: pointer; }
+        .product-item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; margin-bottom: 12px; }
+        .brand { font-size: 11px; font-weight: bold; border: 1px solid #333; padding: 2px 6px; margin-bottom: 8px; display: inline-block; }
+        .name { font-size: 14px; color: #333; line-height: 1.4; font-weight: 500; }
+        
+        .hidden { display: none !important; }
+
+        /* 중앙 검색 아이콘 커스텀 */
+        .custom-search-icon {
+            width: 24px; height: 24px; position: relative; cursor: pointer; display: inline-block; margin-left: 10px;
+        }
+        .search-circle {
+            width: 18px; height: 18px; border: 2.5px solid #333; border-radius: 50%; position: absolute; top: 0; left: 0;
+        }
+        .search-handle {
+            width: 2.5px; height: 8px; background-color: #333; position: absolute; bottom: 1px; right: 1px;
+            transform: rotate(-45deg); transform-origin: center bottom; border-radius: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo" onclick="resetToInitialView()">LIVART</div>
+    <ul class="nav-menu">
+        <li class="active">홈</li>
+        <li>가구</li><li>집테리어</li><li>오피스</li><li>세계가구</li><li>공방</li><li>오구가구</li>
+    </ul>
+
+    <div class="header-search-container" onclick="resetToInitialView()">
+        <input type="text" class="header-search-input" placeholder="" readonly>
+        <button class="header-search-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+    </div>
+
+    <div class="header-icons">
+        <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3"/></svg>
+            <span>로그인</span>
+        </div>
+        <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+            <span>회원가입</span>
+        </div>
+        <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>마이스토어</span>
+        </div>
+        <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span>장바구니</span>
+        </div>
+        <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+            <span>고객센터</span>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div id="search-initial-view">
+        <div class="search-tabs">
+            <div class="tab normal">일반 검색</div>
+            <div class="tab ai active">AI 검색 ✦</div>
+        </div>
+
+        <div class="search-input-box">
+            <input type="text" id="searchInput" placeholder="AI에게 질문해보세요" onkeypress="handleSearch(event)">
+            <div class="custom-search-icon" onclick="showResults()">
+                <div class="search-circle"></div>
+                <div class="search-handle"></div>
+            </div>
+        </div>
+
+        <div class="keyword-container">
+            <div class="keyword-box">
+                <div class="keyword-head">
+                    <h3>최근 검색어</h3>
+                    <span class="sub-info" style="cursor:pointer">검색기록 전체삭제</span>
+                </div>
+                <ul class="keyword-list">
+                    <li class="keyword-item"><span>화장대</span> <div class="del-btn">✕</div></li>
+                    <li class="keyword-item"><span>의자</span> <div class="del-btn">✕</div></li>
+                    <li class="keyword-item"><span>식탁</span> <div class="del-btn">✕</div></li>
+                </ul>
+            </div>
+            <div class="keyword-box">
+                <div class="keyword-head">
+                    <h3>인기 검색어</h3>
+                    <span class="sub-info">2026.02.18 기준</span>
+                </div>
+                <ul class="keyword-list">
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">1</span><span>침대</span></div><span class="rank-stat">—</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">2</span><span>책상</span></div><span class="rank-stat">—</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">3</span><span>책장</span></div><span class="rank-stat">—</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">4</span><span>식탁</span></div><span class="rank-stat down">▼</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">5</span><span>소파</span></div><span class="rank-stat up">▲</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">6</span><span>화장대</span></div><span class="rank-stat up">▲</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">7</span><span>의자</span></div><span class="rank-stat">—</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">8</span><span>서랍장</span></div><span class="rank-stat">—</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">9</span><span>꼼므</span></div><span class="rank-stat up">▲</span></li>
+                    <li class="keyword-item"><div class="rank-info"><span class="rank-num">10</span><span>옷장</span></div><span class="rank-stat down">▼</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-view">
+        <div class="ai-result-box">
+            <div class="ai-title">✦ AI 검색 결과</div>
+            <p class="ai-desc" id="aiDescTarget"></p>
+            <div class="related-keywords">
+                <strong>관련 키워드</strong>
+                <span class="keyword-tag">패브릭 소파</span>
+                <span class="keyword-tag">가죽 소파</span>
+                <span class="keyword-tag">3인 소파</span>
+                <span class="keyword-tag">리클라이너 소파</span>
+            </div>
+        </div>
+
+        <div class="result-tabs">
+            <div class="active">상품(291)</div>
+            <div>기획전(15)</div>
+            <div>커뮤니티(917)</div>
+        </div>
+
+        <div class="filter-tags">
+            <span class="filter-tag">카테고리 ⌵</span>
+            <span class="filter-tag">가격 ⌵</span>
+            <span class="filter-tag">색상 ⌵</span>
+            <span class="filter-tag">쿠션감 ⌵</span>
+        </div>
+
+        <div class="product-grid">
+            <div class="product-item">
+                <img src="https://static.hyundailivart.co.kr/upload_mall/goods/P200198703/GM44006829_img.jpg?RS=0X320&CS=320X320&AO=1">
+                <div><span class="brand">리바트</span><p class="name">NEW온드 3시트 w3200 패브릭 소파 와이드형</p></div>
+            </div>
+            <div class="product-item">
+                <img src="https://static.hyundailivart.co.kr/upload_mall/goods/P200165386/GM43241713_img.jpg?RS=0X250&CS=250X250&AO=1">
+                <div><span class="brand">리바트 마이스터 컬렉션</span><p class="name">아르베(ARBRE) w2140 패브릭 소파(3인용)</p></div>
+            </div>
+            <div class="product-item">
+                <img src="https://static.hyundailivart.co.kr/upload_mall/goods/P200165387/GM43249908_img.jpg?RS=0X250&CS=250X250&AO=1">
+                <div><span class="brand">리바트 마이스터 컬렉션</span><p class="name">아르베(ARBRE) 1시트 w1170 패브릭 소파(1인용)</p></div>
+            </div>
+            <div class="product-item">
+                <img src="https://static.hyundailivart.co.kr/upload_mall/goods/P200165392/GM43255295_img.jpg?RS=0X250&CS=250X250&AO=1">
+                <div><span class="brand">리바트 마이스터 컬렉션</span><p class="name">베이(Bae) w2110 패브릭 소파(3인용)</p></div>
+            </div>
+            <div class="product-item">
+                <img src="https://static.hyundailivart.co.kr/upload_mall/goods/P200165393/GM43256779_img.jpg?RS=0X250&CS=250X250&AO=1">
+                <div><span class="brand">리바트 마이스터 컬렉션</span><p class="name">베이(Bae) 1시트 w1020 패브릭 소파(1인용)</p></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const fullText = `모던한 거실 분위기를 연출하는 다양한 스타일의 소파를 추천합니다.
+특히, 베이 패브릭 소파는 방수 기능과 라운드 디자인으로 실용성을 더했으며, 아르베 소파는 스틸 다릿발 디자인과 방수 기능으로 안정감을 제공합니다.
+리바트의 제품들은 트렌디한 디자인과 기능성을 갖추고 있어 만족스러운 거실 공간을 완성할 수 있습니다.`;
+
+    // [신규] 화면을 초기 상태로 되돌리는 함수
+    function resetToInitialView() {
+        document.getElementById('result-view').style.display = 'none';
+        document.getElementById('search-initial-view').classList.remove('hidden');
+        document.getElementById('searchInput').value = ""; // 입력창 비우기
+        document.getElementById('searchInput').focus(); // 자동 포커스
+        window.scrollTo(0, 0);
+    }
+
+    function handleSearch(event) {
+        if (event.key === 'Enter') {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        const input = document.getElementById('searchInput');
+        if(input.value.trim() === "") return;
+        
+        document.getElementById('search-initial-view').classList.add('hidden');
+        document.getElementById('result-view').style.display = 'block';
+        window.scrollTo(0, 0);
+        startTyping();
+    }
+
+    function startTyping() {
+        const target = document.getElementById('aiDescTarget');
+        target.innerHTML = ""; 
+        let index = 0;
+        function type() {
+            if (index < fullText.length) {
+                const char = fullText[index];
+                target.innerHTML += (char === '\n') ? '<br>' : char;
+                index++;
+                setTimeout(type, 35);
+            }
+        }
+        type();
+    }
+</script>
+
+</body>
+</html>
