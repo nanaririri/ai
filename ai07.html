@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>현대리바트 AI 컨설팅</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #252525;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 40px;
+  }
+
+  /* Panel */
+  .panel {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 420px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    overflow: hidden;
+  }
+
+  .panel-inner {
+    padding: 32px 28px;
+    min-height: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Header */
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    background: #eef2ff;
+    color: #3b82f6;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #aaa;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s;
+  }
+  .close-btn:hover { color: #333; }
+
+  /* Section label */
+  .section-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 12px;
+  }
+
+  /* Room tabs */
+  .room-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+  .room-btn {
+    font-size: 13px;
+    padding: 10px 0;
+    text-align: center;
+    border-radius: 4px;
+    border: 1px solid #f3f4f6;
+    background: #f9fafb;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .room-btn:hover { background: #f3f4f6; color: #3b82f6; }
+  .room-btn.active {
+    background: #3b82f6;
+    color: #fff;
+    border-color: #3b82f6;
+    font-weight: 600;
+  }
+
+  /* Style options */
+  .style-options { display: flex; flex-direction: column; gap: 10px; }
+  .style-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border: 1px solid #f3f4f6;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .style-option:hover { background: #f3f4f6; }
+  .style-option.selected {
+    border: 1.5px solid #3b82f6;
+    background: #eff6ff;
+  }
+  .radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid #d1d5db;
+    background: #fff;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .style-option.selected .radio { border-color: #3b82f6; }
+  .radio-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3b82f6;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .style-option.selected .radio-dot { opacity: 1; }
+  .style-text { font-size: 13.5px; color: #4b5563; font-weight: 500; }
+  .style-option.selected .style-text { color: #1e40af; font-weight: 600; }
+
+  .more-link {
+    font-size: 12px;
+    color: #9ca3af;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 14px;
+    width: 100%;
+    font-family: inherit;
+    transition: color 0.15s;
+  }
+  .more-link:hover { color: #3b82f6; }
+
+  /* CTA button */
+  .cta-btn {
+    margin-top: auto;
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    transition: background 0.2s;
+    letter-spacing: -0.02em;
+  }
+  .cta-btn:hover { background: #2563eb; }
+  .cta-btn:active { transform: scale(0.99); }
+
+  /* Loading screen */
+  .loading-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+  }
+
+  .blob-wrap {
+    width: 140px;
+    height: 140px;
+    position: relative;
+    filter: blur(0px);
+  }
+
+  /* 세 개의 색상 blob이 서로 공전하며 섞이는 구조 */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    filter: blur(22px);
+  }
+
+  /* 하늘색 큰 원 - 시계방향 공전 */
+  .blob-cyan {
+    width: 90px;
+    height: 90px;
+    background: radial-gradient(circle at 40% 40%, #7ee8ff 0%, #38c4f0 60%, transparent 100%);
+    top: 10px;
+    left: 25px;
+    animation: orbitCyan 2.4s ease-in-out infinite;
+  }
+
+  /* 보라/파랑 원 - 반시계 공전 */
+  .blob-blue {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle at 50% 50%, #a78bfa 0%, #6366f1 55%, transparent 100%);
+    top: 30px;
+    left: 15px;
+    animation: orbitBlue 2.4s ease-in-out infinite;
+  }
+
+  /* 마젠타/핑크 원 - 아래쪽 진자 운동 */
+  .blob-magenta {
+    width: 75px;
+    height: 75px;
+    background: radial-gradient(circle at 50% 40%, #f472b6 0%, #d946ef 50%, #a21caf 90%, transparent 100%);
+    top: 55px;
+    left: 20px;
+    animation: orbitMagenta 2.4s ease-in-out infinite;
+  }
+
+  @keyframes orbitCyan {
+    0%   { transform: translate(0px,  0px)  scale(1);    opacity: 0.95; }
+    25%  { transform: translate(18px,-14px) scale(1.08); opacity: 1;    }
+    50%  { transform: translate(28px,  6px) scale(0.96); opacity: 0.9;  }
+    75%  { transform: translate(10px, 18px) scale(1.04); opacity: 1;    }
+    100% { transform: translate(0px,  0px)  scale(1);    opacity: 0.95; }
+  }
+  @keyframes orbitBlue {
+    0%   { transform: translate(0px, 0px)   scale(1);    opacity: 0.85; }
+    25%  { transform: translate(-8px, 20px) scale(1.06); opacity: 0.95; }
+    50%  { transform: translate(16px, 28px) scale(0.94); opacity: 0.8;  }
+    75%  { transform: translate(24px,  6px) scale(1.1);  opacity: 0.9;  }
+    100% { transform: translate(0px, 0px)   scale(1);    opacity: 0.85; }
+  }
+  @keyframes orbitMagenta {
+    0%   { transform: translate(0px,  0px)   scale(1);    opacity: 0.9;  }
+    25%  { transform: translate(22px, -8px)  scale(0.92); opacity: 0.8;  }
+    50%  { transform: translate(14px,-20px)  scale(1.08); opacity: 1;    }
+    75%  { transform: translate(-6px, 10px)  scale(0.96); opacity: 0.85; }
+    100% { transform: translate(0px,  0px)   scale(1);    opacity: 0.9;  }
+  }
+
+  .loading-text { font-size: 14px; color: #3b82f6; font-weight: 500; }
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.5s steps(4, end) infinite;
+  }
+  @keyframes dots { 0%{content:'';} 25%{content:'.';} 50%{content:'..';} 75%{content:'...';} 100%{content:'';} }
+
+  /* Result notice */
+  .result-notice {
+    background: #eff6ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .result-notice p {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #2563eb;
+    line-height: 1.6;
+  }
+
+  .result-meta {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+  }
+
+  /* Result grid */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .result-card {
+    border: 1.5px solid #f3f4f6;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #f9fafb;
+  }
+  .result-card:hover { border-color: #93c5fd; transform: translateY(-1px); }
+  .result-card.selected { border: 2px solid #3b82f6; }
+  .mock-img { width: 100%; height: 95px; display: block; }
+  .mock-img-01 { background: linear-gradient(160deg, #ddd0bb 0%, #c8b08a 50%, #b89870 100%); }
+  .mock-img-02 { background: linear-gradient(160deg, #ede8e0 0%, #d4c9b8 50%, #c0b09a 100%); }
+  .mock-img-03 { background: linear-gradient(160deg, #c4b4a4 0%, #a89484 50%, #907870 100%); }
+  .mock-img-04 { background: linear-gradient(160deg, #d8c8b8 0%, #c4afa0 50%, #b09488 100%); }
+  .result-card-label {
+    font-size: 11.5px;
+    color: #6b7280;
+    text-align: center;
+    padding: 8px 4px;
+    font-weight: 500;
+    background: #fff;
+  }
+
+  /* Detail screen */
+  .back-btn {
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: #3b82f6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    padding: 0;
+    font-weight: 600;
+  }
+  .back-btn:hover { text-decoration: underline; }
+
+  .detail-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+    text-align: center;
+  }
+
+  .detail-img-wrap {
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .detail-img {
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(160deg, #ede8e0 0%, #d4c9b8 60%, #c0b09a 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 10px;
+    position: relative;
+  }
+  .enlarge-btn {
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+  }
+
+  .detail-desc {
+    font-size: 13.5px;
+    color: #4b5563;
+    line-height: 1.85;
+    font-weight: 400;
+  }
+
+  /* Screens */
+  .screen { display: none; }
+  .screen.active {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    animation: fadeUp 0.25s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  #screen4 .panel-inner {
+    overflow-y: auto;
+    max-height: 700px;
+  }
+</style>
+</head>
+<body>
+
+<div class="panel">
+
+  <!-- SCREEN 1: Selection -->
+  <div class="panel-inner screen active" id="screen1">
+    <div class="panel-header">
+      <div class="panel-title">현대리바트 <span class="badge">AI 컨설팅</span></div>
+      <button class="close-btn" aria-label="닫기">✕</button>
+    </div>
+
+    <div>
+      <p class="section-label">1. 인테리어 추천 받을 공간을 선택하세요.</p>
+      <div class="room-tabs">
+        <button class="room-btn" onclick="selectRoom(this)">전체</button>
+        <button class="room-btn active" onclick="selectRoom(this)">주방</button>
+        <button class="room-btn" onclick="selectRoom(this)">수납</button>
+        <button class="room-btn" onclick="selectRoom(this)">더룸</button>
+        <button class="room-btn" onclick="selectRoom(this)">바스</button>
+        <button class="room-btn" onclick="selectRoom(this)">중문</button>
+        <button class="room-btn" onclick="selectRoom(this)">완성창</button>
+        <button class="room-btn" onclick="selectRoom(this)">상재</button>
+        <button class="room-btn" onclick="selectRoom(this)">홀도어</button>
+        <button class="room-btn" onclick="selectRoom(this)">조명</button>
+      </div>
+    </div>
+
+    <div>
+      <p class="section-label">2. 어떤 분위기를 원하시나요?</p>
+      <div class="style-options">
+        <div class="style-option" onclick="selectStyle(this)">
+          <div class="radio"><div class="radio-dot"></div></div>
+          <span class="style-text">포근하고 따뜻한 우드 앤 베이지</span>
+        </div>
+        <div class="style-option" onclick="selectStyle(this)">
+          <div class="radio"><div class="radio-dot"></div></div>
+          <span class="style-text">물건 없이 깔끔하고 화사하게 (미니멀)</span>
+        </div>
+        <div class="style-option selected" onclick="selectStyle(this)">
+          <div class="radio"><div class="radio-dot"></div></div>
+          <span class="style-text">5성급 호텔처럼 고급스럽고 우아하게</span>
+        </div>
+        <div class="style-option" onclick="selectStyle(this)">
+          <div class="radio"><div class="radio-dot"></div></div>
+          <span class="style-text">물건 없이 깔끔하고 화사하게 (미니멀)</span>
+        </div>
+        <div class="style-option" onclick="selectStyle(this)">
+          <div class="radio"><div class="radio-dot"></div></div>
+          <span class="style-text">물건 없이 깔끔하고 화사하게 (미니멀)</span>
+        </div>
+      </div>
+      <button class="more-link">다른 스타일 더보기 ↻</button>
+    </div>
+
+    <button class="cta-btn" onclick="goScreen('screen2', startLoading)">
+      AI 맞춤 인테리어 추천 받기
+    </button>
+  </div>
+
+  <!-- SCREEN 2: Loading -->
+  <div class="panel-inner screen" id="screen2">
+    <div class="panel-header">
+      <div class="panel-title">현대리바트 <span class="badge">AI 컨설팅</span></div>
+      <button class="close-btn" aria-label="닫기">✕</button>
+    </div>
+    <div class="loading-area">
+      <div class="blob-wrap">
+        <div class="blob blob-cyan"></div>
+        <div class="blob blob-blue"></div>
+        <div class="blob blob-magenta"></div>
+      </div>
+      <p class="loading-text">AI 디자인 생성 중<span class="loading-dots"></span></p>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Results -->
+  <div class="panel-inner screen" id="screen3">
+    <div class="panel-header">
+      <div class="panel-title">현대리바트 <span class="badge">AI 컨설팅</span></div>
+      <button class="close-btn" aria-label="닫기">✕</button>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div class="style-option" style="opacity:0.4; pointer-events:none;">
+        <div class="radio"><div class="radio-dot"></div></div>
+        <span class="style-text">물건 없이 깔끔하고 화사하게 (미니멀)</span>
+      </div>
+      <div class="style-option" style="opacity:0.4; pointer-events:none;">
+        <div class="radio"><div class="radio-dot"></div></div>
+        <span class="style-text">물건 없이 깔끔하고 화사하게 (미니멀)</span>
+      </div>
+      <button class="more-link">다른 스타일 더보기 ↻</button>
+    </div>
+
+    <div class="result-notice">
+      <p>완료되었습니다.<br>디자인을 클릭하여 상담을 받아보세요!</p>
+    </div>
+
+    <p class="result-meta">주방 추천 디자인 &nbsp;|&nbsp; 포근하고 따뜻한 우드 앤 베이지</p>
+
+    <div class="result-grid">
+      <div class="result-card" onclick="selectCard(this)">
+        <div class="mock-img mock-img-01">
+          <svg viewBox="0 0 180 95" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="55" width="160" height="30" rx="2" fill="rgba(0,0,0,0.15)"/>
+            <rect x="15" y="20" width="70" height="32" rx="2" fill="rgba(255,255,255,0.3)"/>
+            <rect x="95" y="20" width="75" height="32" rx="2" fill="rgba(255,255,255,0.3)"/>
+            <rect x="80" y="40" width="8" height="12" rx="1" fill="rgba(0,0,0,0.2)"/>
+            <circle cx="90" cy="65" r="6" fill="rgba(255,255,255,0.25)"/>
+            <rect x="20" y="58" width="30" height="4" rx="1" fill="rgba(255,255,255,0.2)"/>
+          </svg>
+        </div>
+        <div class="result-card-label">내추럴 오키 주방 01</div>
+      </div>
+      <div class="result-card selected" onclick="selectCard(this)">
+        <div class="mock-img mock-img-02">
+          <svg viewBox="0 0 180 95" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="55" width="160" height="30" rx="2" fill="rgba(0,0,0,0.12)"/>
+            <rect x="15" y="15" width="150" height="36" rx="2" fill="rgba(255,255,255,0.35)"/>
+            <line x1="80" y1="15" x2="80" y2="51" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+            <rect x="82" y="38" width="6" height="10" rx="1" fill="rgba(0,0,0,0.18)"/>
+            <rect x="20" y="58" width="40" height="4" rx="1" fill="rgba(255,255,255,0.25)"/>
+            <circle cx="150" cy="62" r="5" fill="rgba(255,255,255,0.3)"/>
+          </svg>
+        </div>
+        <div class="result-card-label">내추럴 오키 주방 02</div>
+      </div>
+      <div class="result-card" onclick="selectCard(this)">
+        <div class="mock-img mock-img-03">
+          <svg viewBox="0 0 180 95" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="50" width="160" height="35" rx="2" fill="rgba(0,0,0,0.15)"/>
+            <rect x="15" y="18" width="60" height="28" rx="2" fill="rgba(255,255,255,0.25)"/>
+            <rect x="85" y="18" width="80" height="28" rx="2" fill="rgba(255,255,255,0.25)"/>
+            <circle cx="45" cy="62" r="7" fill="rgba(255,255,255,0.2)"/>
+            <rect x="95" y="55" width="50" height="5" rx="1" fill="rgba(255,255,255,0.2)"/>
+          </svg>
+        </div>
+        <div class="result-card-label">내추럴 오키 주방 03</div>
+      </div>
+      <div class="result-card" onclick="selectCard(this)">
+        <div class="mock-img mock-img-04">
+          <svg viewBox="0 0 180 95" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="52" width="160" height="33" rx="2" fill="rgba(0,0,0,0.13)"/>
+            <rect x="15" y="16" width="150" height="32" rx="2" fill="rgba(255,255,255,0.3)"/>
+            <rect x="20" y="22" width="40" height="20" rx="1" fill="rgba(0,0,0,0.1)"/>
+            <rect x="70" y="22" width="90" height="20" rx="1" fill="rgba(0,0,0,0.08)"/>
+            <rect x="20" y="56" width="60" height="5" rx="1" fill="rgba(255,255,255,0.22)"/>
+          </svg>
+        </div>
+        <div class="result-card-label">내추럴 오키 주방 04</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Detail -->
+  <div class="panel-inner screen" id="screen4">
+    <div class="panel-header">
+      <div class="panel-title">현대리바트 <span class="badge">AI 컨설팅</span></div>
+      <button class="close-btn" aria-label="닫기">✕</button>
+    </div>
+
+    <button class="back-btn" onclick="goScreen('screen3')">‹ &nbsp;내추럴 오키 주방 02</button>
+
+    <p class="detail-title">내추럴 오키 주방 02</p>
+
+    <div class="detail-img-wrap">
+      <div class="detail-img">
+        <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="400" height="180" fill="#e8e0d4"/>
+          <rect x="0" y="95" width="400" height="85" fill="#d0c4b0"/>
+          <rect x="20" y="28" width="360" height="62" rx="3" fill="rgba(255,255,255,0.45)"/>
+          <line x1="200" y1="28" x2="200" y2="90" stroke="rgba(0,0,0,0.08)" stroke-width="1.5"/>
+          <rect x="25" y="33" width="170" height="52" rx="2" fill="rgba(255,255,255,0.3)"/>
+          <rect x="205" y="33" width="170" height="52" rx="2" fill="rgba(255,255,255,0.3)"/>
+          <rect x="162" y="62" width="12" height="24" rx="2" fill="#b09878"/>
+          <rect x="0" y="97" width="400" height="6" fill="#c8b898"/>
+          <rect x="40" y="106" width="80" height="48" rx="2" fill="#d8c8a8"/>
+          <rect x="130" y="106" width="140" height="48" rx="2" fill="#c8b898"/>
+          <circle cx="200" cy="130" r="15" fill="rgba(255,255,255,0.3)" stroke="#b09878" stroke-width="1"/>
+          <rect x="280" y="106" width="80" height="48" rx="2" fill="#d8c8a8"/>
+          <rect x="45" y="112" width="70" height="3" rx="1" fill="rgba(0,0,0,0.12)"/>
+          <rect x="45" y="120" width="50" height="2" rx="1" fill="rgba(0,0,0,0.08)"/>
+        </svg>
+        <button class="enlarge-btn">크게보기</button>
+      </div>
+    </div>
+
+    <p class="detail-desc">
+      따뜻한 베이지 톤의 벽면과 조화롭게 어우러지는 우드 소재의 상하부장은 주방 전체에 포근하고 아늑한 분위기를 조성합니다.<br><br>
+      효율적인 동선을 고려한 일자형 레이아웃은 불필요한 요소를 배제하여 시각적인 개방감을 극대화하고 좁은 공간에서도 넉넉한 수납력을 확보했습니다.<br><br>
+      특히 내구성이 뛰어난 무광 페드 도어와 자연스러운 나뭇결이 살아있는 우드 텍스처 마감재를 사용하여 고급스러운 질감을 구현했습니다.<br><br>
+      이러한 가구 배치는 주방을 단순히 요리하는 공간을 넘어 가족과 온기를 나누는 감성적인 라이프 스타일의 중심지로 완성해줍니다.
+    </p>
+  </div>
+
+</div>
+
+<script>
+  function goScreen(id, callback) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (callback) callback();
+  }
+
+  function startLoading() {
+    setTimeout(() => { goScreen('screen3'); }, 2200);
+  }
+
+  function selectRoom(btn) {
+    document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function selectStyle(el) {
+    document.querySelectorAll('#screen1 .style-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectCard(card) {
+    document.querySelectorAll('.result-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    setTimeout(() => { goScreen('screen4'); }, 150);
+  }
+</script>
+</body>
+</html>
