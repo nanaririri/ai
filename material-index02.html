@@ -162,6 +162,22 @@
   }
   .won-dot.on{ background:var(--accent-2); }
 
+  /* product thumbnails */
+  .product-thumb{
+    position:relative;
+    overflow:hidden;
+    aspect-ratio:1/1;
+    border:1px solid var(--border);
+  }
+  .product-thumb::after{
+    content:'';
+    position:absolute; inset:0;
+    background-image: radial-gradient(rgba(0,0,0,.06) 1px, transparent 1px);
+    background-size: 5px 5px;
+    mix-blend-mode:multiply;
+    opacity:.5;
+  }
+
   ::-webkit-scrollbar{height:6px;width:6px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
@@ -370,6 +386,37 @@ function icon(key, cls){
   return `<svg class="${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]||ICONS.wall}</svg>`;
 }
 
+/* material-swatch style gradients standing in for product photography */
+const SWATCHES = [
+  'linear-gradient(150deg,#dbe4ff,#a9bcff)',
+  'linear-gradient(150deg,#e6e6e6,#bdbdbd)',
+  'linear-gradient(150deg,#e2e9ff,#8fa3f2)',
+  'linear-gradient(150deg,#ececec,#c8c8c8)',
+  'linear-gradient(150deg,#dee6ff,#9fb0e8)',
+  'linear-gradient(150deg,#eaeaea,#c2c2c2)',
+];
+function swatch(i){ return SWATCHES[i % SWATCHES.length]; }
+
+/* generic product line-up per subcategory (dummy prototype data) */
+const PRODUCT_TEMPLATES = {
+  'door': ['화이트 무늬목 도어','블랙 프레임 도어','방음 도어','슬라이딩 폴딩도어'],
+  'floor': ['오크 강마루','헤링본 마루','대리석 데코타일','SPC 바닥재'],
+  'bath': ['월행어 양변기','세라믹 세면기','프리스탠딩 욕조','스퀘어 샤워부스'],
+  'stone': ['카라라 대리석 슬라브','트래버틴 타일','인조대리석 상판','현무암 판석'],
+  'wall': ['합지 벽지','친환경 실크벽지','우드슬랫 벽패널','메탈릭 벽패널'],
+  'kitchen': ['ㄱ자 주방가구','아일랜드 식탁형 키친','언더씽크 수전','빌트인 인덕션'],
+  'living': ['모듈러 소파','원목 다이닝 테이블','펜던트 조명','리넨 커튼 패브릭'],
+  'window-int': ['3연동 중문','스윙 도어형 중문','유리 파티션','알루미늄 프레임 창호'],
+  'facade': ['스타코 마감 시스템','알루미늄 징크 사이딩','단열 드라이비트','컬러강판 외장재'],
+  'outdoor': ['천연목 데크재','합성목 데크타일','야외 파고라 세트','알루미늄 야외가구'],
+  'composite': ['ACM 알루미늄 복합패널','컴포지트 우드데크','방화 인증 복합패널','논슬립 복합바닥재'],
+  'window-ext': ['시스템 삼중창호','커튼월 유닛','로이유리 시스템창','슬라이딩 시스템도어'],
+};
+function getProducts(subId){
+  const names = PRODUCT_TEMPLATES[subId] || ['대표 제품 A','대표 제품 B','대표 제품 C','대표 제품 D'];
+  return names.map((n,i)=>({ name:n, bg: swatch(i) }));
+}
+
 /* ============================= STATE ============================= */
 const state = { step:1, mainKey:null, subId:null, filter:'ALL' };
 
@@ -412,7 +459,6 @@ function renderRail(){
   });
   desktop.innerHTML = d;
 
-  // add vertical labels next to dots via title attr (simple, unobtrusive)
   desktop.querySelectorAll('.rail-item').forEach((el,i)=>{
     el.title = STAGES[i].label;
   });
@@ -451,7 +497,6 @@ function renderBreadcrumb(){
     if(!last) html += `<span style="color:var(--gray)">›</span>`;
   });
 
-  // back button
   const backHtml = state.step>1 ? `
     <button data-action="back" class="flex items-center gap-1 mr-2 font-semibold px-2.5 py-1 rounded-full" style="color:var(--accent); background:var(--accent-soft)">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg>
@@ -588,6 +633,8 @@ function openCompanyModal(name){
   if(!company) return;
 
   const t = TIER_LABEL[company.tier];
+  const products = getProducts(s.id);
+
   document.getElementById('modal-body').innerHTML = `
     <div class="p-6 md:p-7">
       <div class="flex items-start justify-between mb-6">
@@ -625,6 +672,20 @@ function openCompanyModal(name){
             방문하기
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M8 7h9v9"/></svg>
           </a>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <p class="text-xs font-mono tracking-wide mb-3" style="color:var(--gray)">취급 제품</p>
+        <div class="grid grid-cols-2 gap-3">
+          ${products.map(p=>`
+            <div>
+              <div class="product-thumb rounded-sm flex items-center justify-center" style="background:${p.bg}">
+                <div style="color:rgba(24,23,15,.55); width:34px; height:34px;">${icon(s.icon,'w-full h-full')}</div>
+              </div>
+              <p class="text-xs mt-2 leading-snug" style="color:var(--ink)">${p.name}</p>
+            </div>
+          `).join('')}
         </div>
       </div>
 
