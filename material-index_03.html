@@ -417,6 +417,58 @@ function getProducts(subId){
   return names.map((n,i)=>({ name:n, bg: swatch(i) }));
 }
 
+/* ============================= SEARCH ============================= */
+function performSearch(query){
+  const box = document.getElementById('search-results');
+  const clearBtn = document.getElementById('search-clear');
+  if(!box) return;
+  const q = query.trim().toLowerCase();
+  if(clearBtn) clearBtn.classList.toggle('hidden', q.length===0);
+
+  if(!q){ box.classList.add('hidden'); box.innerHTML=''; return; }
+
+  const results = [];
+  Object.values(DATA).forEach(main=>{
+    main.subs.forEach(sub=>{
+      if(sub.name.toLowerCase().includes(q)){
+        results.push({type:'sub', mainKey:main.key, subId:sub.id, title:sub.name, subtitle:`${main.label} 카테고리`});
+      }
+      sub.groups.forEach(group=>{
+        group.companies.forEach(c=>{
+          if(c.name.toLowerCase().includes(q)){
+            results.push({type:'company', mainKey:main.key, subId:sub.id, name:c.name, title:c.name, subtitle:`${main.label} · ${sub.name}`});
+          }
+        });
+      });
+    });
+  });
+
+  if(results.length===0){
+    box.innerHTML = `<div class="px-5 py-4 text-sm" style="color:var(--ink-soft)">검색 결과가 없습니다</div>`;
+    box.classList.remove('hidden');
+    return;
+  }
+
+  box.innerHTML = results.slice(0,8).map(r=>`
+    <button data-action="search-select" data-type="${r.type}" data-main="${r.mainKey}" data-sub="${r.subId}" ${r.type==='company'?`data-name="${encodeURIComponent(r.name)}"`:''} class="w-full text-left flex items-center justify-between gap-3 px-5 py-3.5 border-b last:border-b-0 transition-colors" style="border-color:var(--border)" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
+      <div class="min-w-0">
+        <div class="text-sm font-medium truncate" style="color:var(--ink)">${r.title}</div>
+        <div class="text-xs mt-0.5" style="color:var(--gray)">${r.subtitle}</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0" style="color:var(--gray)"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  `).join('');
+  box.classList.remove('hidden');
+}
+function clearSearch(){
+  const input = document.getElementById('search-input');
+  const box = document.getElementById('search-results');
+  if(input) input.value = '';
+  if(box){ box.classList.add('hidden'); box.innerHTML=''; }
+  const clearBtn = document.getElementById('search-clear');
+  if(clearBtn) clearBtn.classList.add('hidden');
+}
+
 /* ============================= STATE ============================= */
 const state = { step:1, mainKey:null, subId:null, filter:'ALL' };
 
@@ -510,13 +562,28 @@ function renderBreadcrumb(){
 function stepOneHTML(){
   return `
   <div class="fade-up">
-    <div class="mb-10 md:mb-14">
+    <div class="mb-8 md:mb-10">
       <h1 class="font-display font-900 text-[13vw] sm:text-6xl md:text-7xl leading-[0.92] tracking-tight" style="color:var(--ink)">
         공간을 만드는<br/>자재를 찾아보세요
       </h1>
       <p class="mt-5 text-[15px] md:text-base max-w-md" style="color:var(--ink-soft)">
         인테리어 마감재부터 외장 건축 기자재까지, 분야를 선택하고 원하는 업체 정보를 확인하세요.
       </p>
+    </div>
+
+    <div class="relative max-w-xl mb-10 md:mb-14">
+      <div class="flex items-center gap-3 rounded-full pl-5 pr-2 py-2 border" style="border-color:var(--border); background:var(--surface)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray); flex-shrink:0"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search-input" type="text" autocomplete="off" placeholder="업체명 또는 카테고리를 검색해보세요 (예: 도어, 한솔도어)" class="flex-1 outline-none text-sm bg-transparent py-1.5" style="color:var(--ink)" />
+        <button id="search-clear" data-action="search-clear" class="hidden shrink-0 mr-1" style="color:var(--gray)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <button type="button" data-action="search-submit" aria-label="검색" class="shrink-0 flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold" style="background:var(--ink); color:#fff">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          검색
+        </button>
+      </div>
+      <div id="search-results" class="hidden absolute left-0 right-0 mt-2 z-20 rounded-sm border shadow-lg overflow-hidden max-h-80 overflow-y-auto" style="border-color:var(--border); background:var(--surface)"></div>
     </div>
 
     <div class="grid sm:grid-cols-2 gap-5 md:gap-6 stagger">
@@ -734,7 +801,7 @@ function render(){
   document.getElementById('stage').innerHTML = html;
 }
 
-function transitionTo(fn){
+function transitionTo(fn, after){
   const stage = document.getElementById('stage');
   stage.classList.remove('stage-in');
   stage.classList.add('stage-out');
@@ -744,6 +811,7 @@ function transitionTo(fn){
     requestAnimationFrame(()=>{
       stage.classList.remove('stage-out');
       stage.classList.add('stage-in');
+      if(after) after();
     });
     window.scrollTo({top:0, behavior:'smooth'});
   }, 220);
@@ -786,10 +854,57 @@ document.addEventListener('click', (e)=>{
   else if(action==='reset'){
     transitionTo(()=>{ state.step=1; state.mainKey=null; state.subId=null; state.filter='ALL'; });
   }
+  else if(action==='search-select'){
+    const type = el.dataset.type;
+    const mainKey = el.dataset.main;
+    const subId = el.dataset.sub;
+    if(type==='sub'){
+      transitionTo(()=>{ state.mainKey=mainKey; state.subId=subId; state.step=3; state.filter='ALL'; });
+    } else if(type==='company'){
+      const companyName = decodeURIComponent(el.dataset.name);
+      transitionTo(
+        ()=>{ state.mainKey=mainKey; state.subId=subId; state.step=3; state.filter='ALL'; },
+        ()=>{ openCompanyModal(companyName); }
+      );
+    }
+  }
+  else if(action==='search-clear'){
+    clearSearch();
+  }
+  else if(action==='search-submit'){
+    const input = document.getElementById('search-input');
+    if(input) performSearch(input.value);
+  }
+});
+
+document.addEventListener('input', (e)=>{
+  if(e.target && e.target.id==='search-input'){
+    performSearch(e.target.value);
+  }
 });
 
 document.addEventListener('keydown', (e)=>{
-  if(e.key==='Escape') closeModal();
+  if(e.key==='Enter' && e.target && e.target.id==='search-input'){
+    performSearch(e.target.value);
+  }
+});
+
+document.addEventListener('click', (e)=>{
+  const box = document.getElementById('search-results');
+  const input = document.getElementById('search-input');
+  if(box && !box.classList.contains('hidden')){
+    if(input && !input.contains(e.target) && !box.contains(e.target)){
+      box.classList.add('hidden');
+    }
+  }
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){
+    closeModal();
+    const box = document.getElementById('search-results');
+    if(box) box.classList.add('hidden');
+  }
 });
 
 /* ============================= INIT ============================= */
