@@ -487,7 +487,7 @@ function heroCard(key){
   const isInt = key==='interior';
   return `
   <button data-action="select-main" data-key="${key}" class="hero-card group text-left rounded-sm p-7 md:p-9 flex flex-col justify-between min-h-[280px] md:min-h-[340px]">
-    <div class="hero-icon w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-8" style="background:${isInt?'var(--accent-soft)':'#F2E9DA'}; color:${isInt?'var(--accent)':'var(--accent-2)'}">
+    <div class="hero-icon w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-8" style="background:${isInt?'var(--accent-soft)':'#eeeeee'}; color:${isInt?'var(--accent)':'var(--accent-2)'}">
       ${isInt ? icon('living','w-7 h-7 md:w-8 md:h-8') : icon('facade','w-7 h-7 md:w-8 md:h-8')}
     </div>
     <div>
