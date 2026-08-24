@@ -539,6 +539,16 @@ function getProducts(subId){
   return names.map((n,i)=>({ name:n, bg: swatch(i) }));
 }
 
+/* per-company real product photos (overrides the generic swatch thumbnails) */
+const PRODUCT_IMAGE_OVERRIDES = {
+  '부림테크': [
+    { name:'자기부상중문', img:'https://raw.githubusercontent.com/nanaririri/ai/main/burim01.JPG' },
+    { name:'자기부상중문', img:'https://raw.githubusercontent.com/nanaririri/ai/main/burim02.JPG' },
+    { name:'자기부상중문', img:'https://raw.githubusercontent.com/nanaririri/ai/main/burim03.JPG' },
+    { name:'자기부상중문', img:'https://raw.githubusercontent.com/nanaririri/ai/main/burim04.JPG' },
+  ],
+};
+
 /* ============================= SEARCH ============================= */
 function performSearch(query){
   const box = document.getElementById('search-results');
@@ -883,7 +893,8 @@ function openCompanyModal(name){
   if(!company) return;
 
   const t = TIER_LABEL[company.tier];
-  const products = getProducts(s.id);
+  const products = PRODUCT_IMAGE_OVERRIDES[company.name] || getProducts(s.id);
+  const hasRealPhotos = !!PRODUCT_IMAGE_OVERRIDES[company.name];
 
   document.getElementById('modal-body').innerHTML = `
     <div class="p-6 md:p-7">
@@ -924,10 +935,12 @@ function openCompanyModal(name){
         <div class="grid grid-cols-2 gap-3">
           ${products.map(p=>`
             <div>
-              <div class="product-thumb rounded-sm flex items-center justify-center" style="background:${p.bg}">
-                <div style="color:rgba(24,23,15,.55); width:34px; height:34px;">${icon(s.icon,'w-full h-full')}</div>
+              <div class="product-thumb rounded-sm flex items-center justify-center" style="${hasRealPhotos ? '' : `background:${p.bg}`}">
+                ${hasRealPhotos
+                  ? `<img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover" />`
+                  : `<div style="color:rgba(24,23,15,.55); width:34px; height:34px;">${icon(s.icon,'w-full h-full')}</div>`
+                }
               </div>
-              <p class="text-xs mt-2 leading-snug" style="color:var(--ink)">${p.name}</p>
             </div>
           `).join('')}
         </div>
