@@ -323,14 +323,21 @@
 /* ============================= DATA ============================= */
 const CITIES = ['서울 성동구 성수동','경기 파주시 문발동','인천 남동구 남동공단','경기 김포시 대곶면','서울 강서구 마곡동','경기 이천시 마장면','충남 아산시 배방읍','경기 용인시 기흥구','서울 금천구 가산동','경기 화성시 향남읍','경기 광주시 오포읍','전북 완주군 봉동읍'];
 const TIER_LABEL = {1:{txt:'저가형', won:1}, 2:{txt:'중가형', won:2}, 3:{txt:'고가형', won:3}};
+const REP_PRODUCTS = ['공기청정기','환기장치','우드 실링팬','인테리어 조명','무드등','식물재배기','스마트 도어락','제습기','블라인드','붙박이 수납장'];
 let _cityIdx = 0;
+function pickProducts(){
+  const start = _cityIdx % REP_PRODUCTS.length;
+  const idxs = [start, (start+3)%REP_PRODUCTS.length, (start+6)%REP_PRODUCTS.length];
+  return idxs.map(i=>REP_PRODUCTS[i]).join(', ');
+}
 function co(name, slug, tier){
   const city = CITIES[_cityIdx % CITIES.length]; _cityIdx++;
   return {
     name, tier,
     homepage: `https://www.${slug}.co.kr`,
     address: `${city} ${20 + (_cityIdx*7 % 60)}-${3 + (_cityIdx*3 % 20)} 자재유통센터`,
-    catalog: `${slug}_catalog_2026.pdf`
+    catalog: `${slug}_catalog_2026.pdf`,
+    repProducts: pickProducts()
   };
 }
 
@@ -837,10 +844,10 @@ function companyCard(c){
       <div class="w-9 h-9 rounded-sm flex items-center justify-center font-display font-700 text-sm" style="background:var(--ink); color:#fff">
         ${c.name.slice(0,1)}
       </div>
-      <div class="flex items-center gap-1" title="${TIER_LABEL[c.tier].txt}">${wonDots(c.tier)}</div>
     </div>
     <div class="font-semibold text-[15px] mb-1" style="color:var(--ink)">${c.name}</div>
-    <div class="text-xs mb-4" style="color:var(--gray)">${c.address}</div>
+    <div class="text-xs mb-2" style="color:var(--gray)">${c.address}</div>
+    <div class="text-xs mb-4" style="color:var(--ink-soft)">${c.repProducts}</div>
     <div class="flex items-center gap-1.5 text-xs font-semibold" style="color:var(--accent)">
       상세 정보 보기
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -883,11 +890,8 @@ function openCompanyModal(name){
           <span class="text-sm text-right max-w-[65%]" style="color:var(--ink)">${company.address}</span>
         </div>
         <div class="info-row flex items-center justify-between px-4 py-3.5">
-          <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">가격대</span>
-          <span class="flex items-center gap-2">
-            <span class="flex items-center gap-1">${wonDots(company.tier)}</span>
-            <span class="text-sm font-semibold" style="color:var(--ink)">${t.txt}</span>
-          </span>
+          <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">대표제품</span>
+          <span class="text-sm text-right max-w-[65%]" style="color:var(--ink)">${company.repProducts}</span>
         </div>
         <div class="info-row flex items-center justify-between px-4 py-3.5">
           <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">홈페이지</span>
