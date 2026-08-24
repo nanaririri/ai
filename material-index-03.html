@@ -688,7 +688,7 @@ function stepOneHTML(){
   return `
   <div class="fade-up">
     <div class="mb-8 md:mb-10">
-      <h1 class="font-display font-900 text-[10vw] sm:text-6xl md:text-7xl leading-[0.92] tracking-tight" style="color:var(--ink)">
+      <h1 class="font-display font-900 text-[13vw] sm:text-6xl md:text-7xl leading-[0.92] tracking-tight" style="color:var(--ink)">
         공간을 만드는<br/>자재를 찾아보세요
       </h1>
       <p class="mt-5 text-[15px] md:text-base max-w-md" style="color:var(--ink-soft)">
@@ -722,10 +722,7 @@ function heroCard(key){
   const d = DATA[key];
   const isInt = key==='interior';
   return `
-  <button data-action="select-main" data-key="${key}" class="hero-card group text-left rounded-sm p-7 md:p-9 flex flex-col justify-between min-h-[280px] md:min-h-[340px]">
-    <div class="hero-icon w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-8" style="background:${isInt?'var(--accent-soft)':'#eeeeee'}; color:${isInt?'var(--accent)':'var(--accent-2)'}">
-      ${isInt ? icon('living','w-7 h-7 md:w-8 md:h-8') : icon('facade','w-7 h-7 md:w-8 md:h-8')}
-    </div>
+  <button data-action="select-main" data-key="${key}" class="hero-card group text-left rounded-sm p-7 md:p-9 flex flex-col justify-end min-h-[280px] md:min-h-[340px]">
     <div>
       <p class="font-mono text-[11px] tracking-[0.18em] mb-2" style="color:var(--gray)">${d.eyebrow}</p>
       <h2 class="font-display font-700 text-4xl md:text-5xl tracking-tight mb-3" style="color:var(--ink)">${d.label}</h2>
