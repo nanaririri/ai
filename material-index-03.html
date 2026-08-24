@@ -307,7 +307,7 @@
         </div>
         <div class="flex items-center gap-2 rounded-full px-4 py-2.5 border" style="border-color:var(--border); background:var(--bg)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray); flex-shrink:0"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="listmap-filter" type="text" autocomplete="off" placeholder="업체명으로 빠르게 찾기" class="flex-1 outline-none text-sm bg-transparent" style="color:var(--ink)" />
+          <input id="listmap-filter" type="text" autocomplete="off" placeholder="업체명 또는 대표제품으로 빠르게 찾기" class="flex-1 outline-none text-sm bg-transparent" style="color:var(--ink)" />
         </div>
       </div>
       <div id="listmap-body" class="flex-1 overflow-y-auto px-6 md:px-8 py-6"></div>
@@ -563,6 +563,8 @@ function performSearch(query){
         group.companies.forEach(c=>{
           if(c.name.toLowerCase().includes(q)){
             results.push({type:'company', mainKey:main.key, subId:sub.id, name:c.name, title:c.name, subtitle:`${main.label} · ${sub.name}`});
+          } else if(c.repProducts && c.repProducts.toLowerCase().includes(q)){
+            results.push({type:'company', mainKey:main.key, subId:sub.id, name:c.name, title:c.name, subtitle:`${main.label} · ${sub.name} · ${c.repProducts}`});
           }
         });
       });
@@ -609,7 +611,7 @@ function renderListMap(filterQuery){
     main.subs.forEach(sub=>{
       let subHtml = '';
       sub.groups.forEach(group=>{
-        const companies = group.companies.filter(c=> !q || c.name.toLowerCase().includes(q));
+        const companies = group.companies.filter(c=> !q || c.name.toLowerCase().includes(q) || (c.repProducts && c.repProducts.toLowerCase().includes(q)));
         if(companies.length===0) return;
         total += companies.length;
         subHtml += `
@@ -764,7 +766,7 @@ function stepOneHTML(){
     <div class="relative max-w-xl mb-10 md:mb-14">
       <div class="flex items-center gap-3 rounded-full pl-5 pr-2 py-2 border" style="border-color:var(--border); background:var(--surface)">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray); flex-shrink:0"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="search-input" type="text" autocomplete="off" placeholder="업체명 또는 카테고리를 검색해보세요 (예: 도어, 한솔도어)" class="flex-1 outline-none text-sm bg-transparent py-1.5" style="color:var(--ink)" />
+        <input id="search-input" type="text" autocomplete="off" placeholder="업체명, 카테고리 또는 대표제품을 검색해보세요 (예: 도어, 한솔도어, 무드등)" class="flex-1 outline-none text-sm bg-transparent py-1.5" style="color:var(--ink)" />
         <button id="search-clear" data-action="search-clear" class="hidden shrink-0 mr-1" style="color:var(--gray)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
