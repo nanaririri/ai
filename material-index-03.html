@@ -467,6 +467,33 @@ const DATA = {
   }
 };
 
+/* ============================= COMPANY DATA OVERRIDES ============================= */
+const COMPANY_OVERRIDES = {
+  '부림테크': {repProducts:'자기부상중문', address:'김해시 진례면 테크노밸리1로 64-16'},
+  '유송타일': {repProducts:'빅슬랩 타일 수입 업체', address:'서울특별시 강남구 논현로127길 7'},
+  '아주스톤': {repProducts:'천연석 수입 및 시공 납품', address:'경상북도 경산시 와촌면 불굴사길 34'},
+  '포스코휴먼스': {repProducts:'클리닝', address:'경상북도 포항시 남구 동해안로6213번길 15-1 포스코휴먼스'},
+  '일흥건영': {repProducts:'흡음 기능 패널', address:'경기도 파주시 탄현면 축현산단로 88-25'},
+  '미가월패널': {repProducts:'월패널, 루버, 몰딩류 업체', address:'경기도 파주시 월롱면 휴암로 117번길 45'},
+  'AGO': {repProducts:'펜던트 조명', address:'서울특별시 중구 산림동 을지로 157'},
+  '92 scent': {repProducts:'감성 디퓨저, 캔들', address:'경기 평택시 장안웃길 56 206호 BI-004호'},
+  'SITE LESS': {repProducts:'건축, 도시전략, 인테리어, 전시, 공간브랜딩', address:'경기도 평택시 장안웃길 56 206호 BI-004호'},
+  '워크업': {repProducts:'워크웨어(작업복): 선풍기 조끼, 방풍 자켓, 안전 조끼 등', address:'경기도 포천시 호국로 56'},
+};
+Object.values(DATA).forEach(main=>{
+  main.subs.forEach(sub=>{
+    sub.groups.forEach(group=>{
+      group.companies.forEach(c=>{
+        const ov = COMPANY_OVERRIDES[c.name];
+        if(ov){
+          if(ov.repProducts) c.repProducts = ov.repProducts;
+          if(ov.address) c.address = ov.address;
+        }
+      });
+    });
+  });
+});
+
 /* ============================= ICONS ============================= */
 const ICONS = {
   door: `<rect x="6" y="3" width="12" height="18" rx="0.5"/><circle cx="14.5" cy="12" r="0.6" fill="currentColor" stroke="none"/><line x1="3" y1="21" x2="21" y2="21"/>`,
