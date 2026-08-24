@@ -968,12 +968,18 @@ function openCompanyModal(name){
           <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">대표제품</span>
           <span class="text-sm text-right max-w-[65%]" style="color:var(--ink)">${company.repProducts}</span>
         </div>
-        <div class="info-row flex items-center justify-between px-4 py-3.5">
-          <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">홈페이지</span>
-          <a href="${company.homepage}" target="_blank" rel="noopener" class="flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full" style="background:var(--accent); color:#fff">
-            방문하기
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M8 7h9v9"/></svg>
-          </a>
+        <div class="info-row flex items-center justify-between gap-3 px-4 py-3.5">
+          <span class="text-xs font-mono tracking-wide shrink-0" style="color:var(--gray)">홈페이지</span>
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="text-sm truncate max-w-[140px] sm:max-w-[180px]" style="color:var(--ink)" title="${company.homepage}">${company.homepage.replace(/^https?:\/\//,'')}</span>
+            <button type="button" data-action="copy-url" data-url="${encodeURIComponent(company.homepage)}" class="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style="background:var(--accent-soft); color:var(--accent)" title="URL 복사">
+              <svg data-copy-icon width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <a href="${company.homepage}" target="_blank" rel="noopener" class="flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full shrink-0" style="background:var(--accent); color:#fff">
+              방문하기
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M8 7h9v9"/></svg>
+            </a>
+          </div>
         </div>
       </div>
 
@@ -1003,6 +1009,31 @@ function openCompanyModal(name){
 }
 function closeModal(){
   document.getElementById('modal-root').classList.add('modal-hidden');
+}
+function copyUrl(url, btn){
+  const finish = ()=>{
+    if(!btn) return;
+    const icon = btn.querySelector('[data-copy-icon]');
+    if(!icon) return;
+    const original = icon.outerHTML;
+    icon.outerHTML = '<svg data-copy-icon width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>';
+    setTimeout(()=>{
+      const cur = btn.querySelector('[data-copy-icon]');
+      if(cur) cur.outerHTML = original;
+    }, 1200);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(finish).catch(finish);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    finish();
+  }
 }
 function downloadCatalog(name){
   const s = getSub();
@@ -1078,6 +1109,9 @@ document.addEventListener('click', (e)=>{
   }
   else if(action==='download-catalog'){
     downloadCatalog(decodeURIComponent(el.dataset.name));
+  }
+  else if(action==='copy-url'){
+    copyUrl(decodeURIComponent(el.dataset.url), el);
   }
   else if(action==='back'){
     transitionTo(()=>{ state.step = Math.max(1, state.step-1); });
