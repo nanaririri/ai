@@ -867,12 +867,7 @@ function stepThreeHTML(){
 function companyCard(c){
   return `
   <div data-action="open-company" data-name="${encodeURIComponent(c.name)}" class="co-card rounded-sm p-5">
-    <div class="flex items-start justify-between mb-4">
-      <div class="w-9 h-9 rounded-sm flex items-center justify-center font-display font-700 text-sm" style="background:var(--ink); color:#fff">
-        ${c.name.slice(0,1)}
-      </div>
-    </div>
-    <div class="font-semibold text-[15px] mb-1" style="color:var(--ink)">${c.name}</div>
+    <div class="font-semibold text-lg mb-1" style="color:var(--ink)">${c.name}</div>
     <div class="text-xs mb-2" style="color:var(--gray)">${c.address}</div>
     <div class="text-xs mb-4" style="color:var(--ink-soft)">${c.repProducts}</div>
     <div class="flex items-center gap-1.5 text-xs font-semibold" style="color:var(--accent)">
@@ -895,12 +890,9 @@ function openCompanyModal(name){
   document.getElementById('modal-body').innerHTML = `
     <div class="p-6 md:p-7">
       <div class="flex items-start justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-sm flex items-center justify-center font-display font-700 text-lg" style="background:var(--ink); color:#fff">${company.name.slice(0,1)}</div>
-          <div>
-            <p class="font-mono text-[10px] tracking-[0.15em] mb-0.5" style="color:var(--gray)">COMPANY DETAIL</p>
-            <h3 class="font-display font-700 text-2xl tracking-tight" style="color:var(--ink)">${company.name}</h3>
-          </div>
+        <div>
+          <p class="font-mono text-[10px] tracking-[0.15em] mb-0.5" style="color:var(--gray)">COMPANY DETAIL</p>
+          <h3 class="font-display font-700 text-2xl tracking-tight" style="color:var(--ink)">${company.name}</h3>
         </div>
         <button data-action="close-modal" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:var(--accent-soft); color:var(--accent)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg>
