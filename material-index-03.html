@@ -704,14 +704,25 @@ function renderListMap(filterQuery){
 
   body.innerHTML = `<p class="font-mono text-[11px] mb-6" style="color:var(--gray)">총 ${total}개 업체</p>` + html;
 }
-function openListMap(){
+function showListMapUI(){
   document.getElementById('listmap-root').classList.remove('listmap-hidden');
   const filterInput = document.getElementById('listmap-filter');
   if(filterInput) filterInput.value = '';
   renderListMap('');
 }
-function closeListMap(){
+function hideListMapUI(){
   document.getElementById('listmap-root').classList.add('listmap-hidden');
+}
+function openListMap(){
+  listmapOpen = true;
+  showListMapUI();
+  pushHistoryState();
+}
+function closeListMap(){
+  if(!listmapOpen) return;
+  listmapOpen = false;
+  hideListMapUI();
+  pushHistoryState();
 }
 
 /* ============================= STATE ============================= */
@@ -933,7 +944,7 @@ function companyCard(c){
 }
 
 /* ============================= RENDER: MODAL (STEP 4) ============================= */
-function openCompanyModal(name){
+function showCompanyModalUI(name){
   const s = getSub();
   let company = null;
   s.groups.forEach(g=>{ const f = g.companies.find(x=>x.name===name); if(f) company = f; });
@@ -1007,8 +1018,19 @@ function openCompanyModal(name){
   `;
   document.getElementById('modal-root').classList.remove('modal-hidden');
 }
-function closeModal(){
+function hideModalUI(){
   document.getElementById('modal-root').classList.add('modal-hidden');
+}
+function openCompanyModal(name){
+  modalCompanyName = name;
+  showCompanyModalUI(name);
+  pushHistoryState();
+}
+function closeModal(){
+  if(!modalCompanyName) return;
+  modalCompanyName = null;
+  hideModalUI();
+  pushHistoryState();
 }
 function copyUrl(url, btn){
   const finish = ()=>{
@@ -1076,6 +1098,7 @@ function transitionTo(fn, after){
   setTimeout(()=>{
     fn();
     render();
+    pushHistoryState();
     requestAnimationFrame(()=>{
       stage.classList.remove('stage-out');
       stage.classList.add('stage-in');
@@ -1084,6 +1107,59 @@ function transitionTo(fn, after){
     window.scrollTo({top:0, behavior:'smooth'});
   }, 220);
 }
+
+/* ============================= HISTORY / BACK BUTTON SUPPORT ============================= */
+let modalCompanyName = null;
+let listmapOpen = false;
+let isRestoringHistory = false;
+let suppressPush = false;
+
+function snapshotState(){
+  return {
+    step: state.step,
+    mainKey: state.mainKey,
+    subId: state.subId,
+    filter: state.filter,
+    modalCompanyName: modalCompanyName,
+    listmapOpen: listmapOpen
+  };
+}
+
+function pushHistoryState(){
+  if(isRestoringHistory || suppressPush) return;
+  history.pushState(snapshotState(), '');
+}
+
+function applyHistoryState(s){
+  isRestoringHistory = true;
+  s = s || { step:1, mainKey:null, subId:null, filter:'ALL', modalCompanyName:null, listmapOpen:false };
+  state.step = s.step || 1;
+  state.mainKey = s.mainKey || null;
+  state.subId = s.subId || null;
+  state.filter = s.filter || 'ALL';
+  render();
+
+  if(s.modalCompanyName){
+    modalCompanyName = s.modalCompanyName;
+    showCompanyModalUI(modalCompanyName);
+  } else {
+    modalCompanyName = null;
+    hideModalUI();
+  }
+
+  if(s.listmapOpen){
+    listmapOpen = true;
+    showListMapUI();
+  } else {
+    listmapOpen = false;
+    hideListMapUI();
+  }
+  isRestoringHistory = false;
+}
+
+window.addEventListener('popstate', (e)=>{
+  applyHistoryState(e.state);
+});
 
 /* ============================= EVENTS ============================= */
 document.addEventListener('click', (e)=>{
@@ -1100,6 +1176,7 @@ document.addEventListener('click', (e)=>{
   else if(action==='filter'){
     state.filter = el.dataset.key;
     render();
+    pushHistoryState();
   }
   else if(action==='open-company'){
     openCompanyModal(decodeURIComponent(el.dataset.name));
@@ -1133,9 +1210,10 @@ document.addEventListener('click', (e)=>{
       transitionTo(()=>{ state.mainKey=mainKey; state.subId=subId; state.step=3; state.filter='ALL'; });
     } else if(type==='company'){
       const companyName = decodeURIComponent(el.dataset.name);
+      suppressPush = true;
       transitionTo(
         ()=>{ state.mainKey=mainKey; state.subId=subId; state.step=3; state.filter='ALL'; },
-        ()=>{ openCompanyModal(companyName); }
+        ()=>{ suppressPush = false; openCompanyModal(companyName); }
       );
     }
   }
@@ -1156,10 +1234,11 @@ document.addEventListener('click', (e)=>{
     const mainKey = el.dataset.main;
     const subId = el.dataset.sub;
     const companyName = decodeURIComponent(el.dataset.name);
+    suppressPush = true;
     closeListMap();
     transitionTo(
       ()=>{ state.mainKey=mainKey; state.subId=subId; state.step=3; state.filter='ALL'; },
-      ()=>{ openCompanyModal(companyName); }
+      ()=>{ suppressPush = false; openCompanyModal(companyName); }
     );
   }
 });
@@ -1200,6 +1279,7 @@ document.addEventListener('keydown', (e)=>{
 
 /* ============================= INIT ============================= */
 render();
+history.replaceState(snapshotState(), '');
 </script>
 </body>
 </html>
