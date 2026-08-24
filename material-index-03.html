@@ -72,6 +72,18 @@
     background:var(--surface);
     transition: transform .35s cubic-bezier(.2,.7,.3,1), box-shadow .35s ease, border-color .35s ease;
   }
+  .hero-card .hero-bg{
+    position:absolute; inset:0;
+    background-size:cover;
+    background-position:center;
+    transition: transform .5s cubic-bezier(.2,.7,.3,1);
+  }
+  .hero-card:hover .hero-bg{ transform: scale(1.05); }
+  .hero-card .hero-overlay{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(24,23,15,0) 30%, rgba(24,23,15,.78) 100%);
+  }
+  .hero-card .hero-content{ position:relative; z-index:1; }
   .hero-card:hover{
     transform: translateY(-6px);
     box-shadow: 0 24px 48px -20px rgba(24,23,15,.25);
@@ -720,14 +732,18 @@ function stepOneHTML(){
 
 function heroCard(key){
   const d = DATA[key];
-  const isInt = key==='interior';
+  const bgUrl = key==='interior'
+    ? 'https://raw.githubusercontent.com/nanaririri/ai/main/01.png'
+    : 'https://raw.githubusercontent.com/nanaririri/ai/main/02.JPG';
   return `
   <button data-action="select-main" data-key="${key}" class="hero-card group text-left rounded-sm p-7 md:p-9 flex flex-col justify-end min-h-[280px] md:min-h-[340px]">
-    <div>
-      <p class="font-mono text-[11px] tracking-[0.18em] mb-2" style="color:var(--gray)">${d.eyebrow}</p>
-      <h2 class="font-display font-700 text-4xl md:text-5xl tracking-tight mb-3" style="color:var(--ink)">${d.label}</h2>
-      <p class="text-sm max-w-xs" style="color:var(--ink-soft)">${d.desc}</p>
-      <div class="mt-6 flex items-center gap-2 text-sm font-semibold" style="color:var(--accent)">
+    <div class="hero-bg" style="background-image:url('${bgUrl}')"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="font-mono text-[11px] tracking-[0.18em] mb-2" style="color:rgba(255,255,255,.75)">${d.eyebrow}</p>
+      <h2 class="font-display font-700 text-4xl md:text-5xl tracking-tight mb-3" style="color:#fff">${d.label}</h2>
+      <p class="text-sm max-w-xs" style="color:rgba(255,255,255,.85)">${d.desc}</p>
+      <div class="mt-6 flex items-center gap-2 text-sm font-semibold" style="color:#fff">
         카테고리 보기
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </div>
