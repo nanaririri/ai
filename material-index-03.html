@@ -1098,11 +1098,28 @@ function copyUrl(url, btn){
     finish();
   }
 }
+/* ============================= CATALOG FILE OVERRIDES ============================= */
+const CATALOG_FILE_OVERRIDES = {
+  '부림테크': 'https://raw.githubusercontent.com/nanaririri/ai/main/burim_catal.pdf',
+};
+
 function downloadCatalog(name){
   const s = getSub();
   let company = null;
   s.groups.forEach(g=>{ const f = g.companies.find(x=>x.name===name); if(f) company = f; });
   if(!company) return;
+
+  const fileUrl = CATALOG_FILE_OVERRIDES[company.name];
+  if(fileUrl){
+    const a = document.createElement('a');
+    a.href = fileUrl;
+    a.download = fileUrl.split('/').pop();
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    return;
+  }
+
   const t = TIER_LABEL[company.tier];
   const content =
 `MATERIAL INDEX — 자재 카탈로그 (프로토타입 더미 파일)
