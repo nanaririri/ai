@@ -478,6 +478,7 @@ Object.values(DATA).forEach(main=>{
           if(ov.address) c.address = ov.address;
           if(ov.homepage) c.homepage = ov.homepage;
         }
+        c.registered = !!ov;
       });
     });
   });
@@ -952,9 +953,16 @@ function stepThreeHTML(){
 }
 
 function companyCard(c){
+  const t = TIER_LABEL[c.tier];
   return `
   <div data-action="open-company" data-name="${encodeURIComponent(c.name)}" class="co-card rounded-sm p-5">
-    <div class="font-semibold text-lg mb-1" style="color:var(--ink)">${c.name}</div>
+    <div class="flex items-start justify-between gap-2 mb-1">
+      <div class="font-semibold text-lg" style="color:var(--ink)">${c.name}</div>
+      <div class="flex items-center gap-1.5 shrink-0 mt-1.5" title="${t.txt}">
+        ${wonDots(t.won)}
+        <span class="font-mono text-[10px]" style="color:var(--gray)">${t.txt}</span>
+      </div>
+    </div>
     <div class="text-xs mb-2" style="color:var(--gray)">${c.address}</div>
     <div class="text-xs mb-4" style="color:var(--ink-soft)">${c.repProducts}</div>
     <div class="flex items-center gap-1.5 text-xs font-semibold" style="color:var(--accent)">
@@ -993,6 +1001,20 @@ function showCompanyModalUI(name){
         <div class="info-row flex items-center justify-between px-4 py-3.5">
           <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">주소</span>
           <span class="text-sm text-right max-w-[65%]" style="color:var(--ink)">${company.address}</span>
+        </div>
+        <div class="info-row flex items-center justify-between px-4 py-3.5">
+          <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">업체 등록 여부</span>
+          <span class="flex items-center gap-1.5 text-sm font-semibold" style="color:${company.registered ? 'var(--accent)' : 'var(--gray)'}">
+            <span class="w-1.5 h-1.5 rounded-full" style="background:${company.registered ? 'var(--accent)' : 'var(--gray)'}"></span>
+            ${company.registered ? '등록' : '미등록'}
+          </span>
+        </div>
+        <div class="info-row flex items-center justify-between px-4 py-3.5">
+          <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">가격대</span>
+          <span class="flex items-center gap-1.5 text-sm font-semibold" style="color:var(--ink)">
+            ${wonDots(t.won)}
+            ${t.txt}
+          </span>
         </div>
         <div class="info-row flex items-center justify-between px-4 py-3.5">
           <span class="text-xs font-mono tracking-wide" style="color:var(--gray)">대표제품</span>
