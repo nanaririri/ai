@@ -337,10 +337,10 @@ function companyLogo(name, size){
   const override = LOGO_IMAGE_OVERRIDES[name];
   const initial = name.trim().charAt(0);
   if(override){
-    const maxW = size*3;
+    const maxW = size*2.3;
     return `<div class="shrink-0 flex items-center justify-center rounded-sm overflow-hidden" style="max-width:${maxW}px; max-height:${size}px;"><img src="${override}" alt="${name}" style="max-width:${maxW}px; max-height:${size}px; width:auto; height:auto;" class="object-contain" loading="lazy" onerror="this.outerHTML='<div class=&quot;font-display font-700&quot; style=&quot;color:var(--ink); font-size:${Math.round(size*0.42)}px;&quot;>${initial}</div>'"/></div>`;
   }
-  return `<div class="shrink-0 flex items-center justify-center rounded-sm font-display font-700" style="width:${size*3}px; height:${size}px; background:#EEEEEE; color:var(--ink); font-size:${Math.round(size*0.42)}px;">${initial}</div>`;
+  return `<div class="shrink-0 flex items-center justify-center rounded-sm font-display font-700" style="width:${size*2.3}px; height:${size}px; background:#EEEEEE; color:var(--ink); font-size:${Math.round(size*0.42)}px;">${initial}</div>`;
 }
 
 const DATA = {
