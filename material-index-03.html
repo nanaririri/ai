@@ -895,7 +895,6 @@ function stepTwoHTML(){
   const m = getMain();
   return `
   <div class="fade-up">
-    <p class="font-mono text-xs tracking-[0.2em] mb-2" style="color:var(--accent-2)">${m.eyebrow}</p>
     <h2 class="font-display font-900 text-4xl md:text-5xl tracking-tight mb-2" style="color:var(--ink)">${m.label}</h2>
     <p class="text-sm mb-9" style="color:var(--ink-soft)">${m.desc} · 세부 카테고리를 선택하세요</p>
 
@@ -925,7 +924,6 @@ function stepThreeHTML(){
   return `
   <div class="fade-up">
     <div class="flex items-center gap-3 mb-2">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style="background:var(--accent-soft); color:var(--accent)">${icon(s.icon,'w-4.5 h-4.5')}</div>
       <h2 class="font-display font-900 text-3xl md:text-4xl tracking-tight" style="color:var(--ink)">${m.label} &gt; ${s.name}</h2>
     </div>
     <p class="text-sm mb-7" style="color:var(--ink-soft)">중분류를 선택해 업체를 필터링하세요</p>
@@ -961,7 +959,6 @@ function companyCard(c){
     <div class="text-xs mb-4" style="color:var(--ink-soft)">${c.repProducts}</div>
     <div class="flex items-center gap-1.5 text-xs font-semibold" style="color:var(--accent)">
       상세 정보 보기
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </div>
   </div>`;
 }
@@ -981,7 +978,6 @@ function showCompanyModalUI(name){
     <div class="p-6 md:p-7">
       <div class="flex items-start justify-between mb-6">
         <div>
-          <p class="font-mono text-[10px] tracking-[0.15em] mb-0.5" style="color:var(--gray)">COMPANY DETAIL</p>
           <h3 class="font-display font-700 text-2xl tracking-tight" style="color:var(--ink)">${company.name}</h3>
         </div>
         <button data-action="close-modal" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:var(--accent-soft); color:var(--accent)">
