@@ -902,7 +902,7 @@ function stepTwoHTML(){
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 stagger">
       ${m.subs.map(s=>`
         <button data-action="select-sub" data-key="${s.id}" class="sub-card group rounded-sm overflow-hidden flex flex-col items-start text-left">
-          <div class="w-full aspect-[4/3] overflow-hidden" style="background:var(--accent-soft)">
+          <div class="w-full aspect-[16/9] overflow-hidden" style="background:var(--accent-soft)">
             <img src="${SUB_IMAGES[s.id] || ''}" alt="${s.name}" class="w-full h-full object-cover" loading="lazy" onerror="handleSubImgError(this,'${s.icon}')" />
           </div>
           <div class="p-5">
