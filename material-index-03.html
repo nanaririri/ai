@@ -165,6 +165,7 @@
   }
   #modal-root{ pointer-events:auto; }
   #modal-root.modal-hidden{ pointer-events:none; }
+  #modal-panel{ pointer-events:auto; }
   .modal-hidden #modal-backdrop{ opacity:0; pointer-events:none; }
   .modal-hidden #modal-panel{ transform: translateY(24px) scale(.98); opacity:0; pointer-events:none; }
 
@@ -196,6 +197,7 @@
   }
   #listmap-panel{
     transition: transform .32s cubic-bezier(.2,.7,.3,1);
+    pointer-events:auto;
   }
   .listmap-hidden #listmap-backdrop{ opacity:0; pointer-events:none; }
   .listmap-hidden #listmap-panel{ transform: translateX(100%); pointer-events:none; }
@@ -272,7 +274,7 @@
 <div id="modal-root" class="fixed inset-0 z-50 modal-hidden">
   <div id="modal-backdrop" class="absolute inset-0" data-action="close-modal"></div>
   <div class="relative min-h-screen flex items-end sm:items-center justify-center p-0 sm:p-6" style="pointer-events:none">
-    <div id="modal-panel" class="relative w-full sm:max-w-lg bg-[var(--surface)] sm:rounded-sm rounded-t-2xl border shadow-2xl max-h-[92vh] overflow-y-auto" style="border-color:var(--border); pointer-events:auto">
+    <div id="modal-panel" class="relative w-full sm:max-w-lg bg-[var(--surface)] sm:rounded-sm rounded-t-2xl border shadow-2xl max-h-[92vh] overflow-y-auto" style="border-color:var(--border)">
       <div id="modal-body"></div>
     </div>
   </div>
@@ -282,7 +284,7 @@
 <div id="listmap-root" class="fixed inset-0 z-50 listmap-hidden">
   <div id="listmap-backdrop" class="absolute inset-0" data-action="close-listmap"></div>
   <div class="relative h-full flex justify-end" style="pointer-events:none">
-    <div id="listmap-panel" class="relative w-full sm:max-w-2xl h-full bg-[var(--surface)] border-l shadow-2xl flex flex-col" style="border-color:var(--border); pointer-events:auto">
+    <div id="listmap-panel" class="relative w-full sm:max-w-2xl h-full bg-[var(--surface)] border-l shadow-2xl flex flex-col" style="border-color:var(--border)">
       <div class="shrink-0 border-b px-6 md:px-8 py-5" style="border-color:var(--border)">
         <div class="flex items-start justify-between mb-4">
           <div>
