@@ -500,6 +500,11 @@ const ICONS = {
 function icon(key, cls){
   return `<svg class="${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]||ICONS.wall}</svg>`;
 }
+function handleSubImgError(imgEl, iconKey){
+  const wrap = imgEl.parentElement;
+  if(!wrap) return;
+  wrap.innerHTML = `<div class="w-full h-full flex items-center justify-center" style="color:var(--accent)">${icon(iconKey,'w-6 h-6')}</div>`;
+}
 
 /* material-swatch style gradients standing in for product photography */
 const SWATCHES = [
@@ -815,6 +820,22 @@ function renderBreadcrumb(){
 }
 
 /* ============================= RENDER: STEP 1 ============================= */
+/* ============================= SUB CATEGORY IMAGES ============================= */
+const SUB_IMAGES = {
+  'door': 'https://raw.githubusercontent.com/nanaririri/ai/main/door.JPG',
+  'floor': 'https://raw.githubusercontent.com/nanaririri/ai/main/floor.JPG',
+  'bath': 'https://raw.githubusercontent.com/nanaririri/ai/main/bath.JPG',
+  'stone': 'https://raw.githubusercontent.com/nanaririri/ai/main/rock.JPG',
+  'wall': 'https://raw.githubusercontent.com/nanaririri/ai/main/wall.JPG',
+  'kitchen': 'https://raw.githubusercontent.com/nanaririri/ai/main/kitchen.JPG',
+  'living': 'https://raw.githubusercontent.com/nanaririri/ai/main/living.JPG',
+  'window-int': 'https://raw.githubusercontent.com/nanaririri/ai/main/window.JPG',
+  'facade': 'https://raw.githubusercontent.com/nanaririri/ai/main/material.jpg',
+  'outdoor': 'https://raw.githubusercontent.com/nanaririri/ai/main/outdoor.JPG',
+  'composite': 'https://raw.githubusercontent.com/nanaririri/ai/main/com.JPG',
+  'window-ext': 'https://raw.githubusercontent.com/nanaririri/ai/main/glass.png',
+};
+
 function stepOneHTML(){
   return `
   <div class="fade-up">
@@ -880,12 +901,14 @@ function stepTwoHTML(){
 
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 stagger">
       ${m.subs.map(s=>`
-        <button data-action="select-sub" data-key="${s.id}" class="sub-card group rounded-sm p-5 flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center mb-5" style="background:var(--accent-soft); color:var(--accent)">
-            ${icon(s.icon,'w-5 h-5')}
+        <button data-action="select-sub" data-key="${s.id}" class="sub-card group rounded-sm overflow-hidden flex flex-col items-start text-left">
+          <div class="w-full aspect-[4/3] overflow-hidden" style="background:var(--accent-soft)">
+            <img src="${SUB_IMAGES[s.id] || ''}" alt="${s.name}" class="w-full h-full object-cover" loading="lazy" onerror="handleSubImgError(this,'${s.icon}')" />
           </div>
-          <div class="font-display font-700 text-xl tracking-tight mb-1" style="color:var(--ink)">${s.name}</div>
-          <div class="font-mono text-[11px]" style="color:var(--gray)">${s.groups.reduce((n,g)=>n+g.companies.length,0)}개 업체</div>
+          <div class="p-5">
+            <div class="font-display font-700 text-xl tracking-tight mb-1" style="color:var(--ink)">${s.name}</div>
+            <div class="font-mono text-[11px]" style="color:var(--gray)">${s.groups.reduce((n,g)=>n+g.companies.length,0)}개 업체</div>
+          </div>
         </button>
       `).join('')}
     </div>
