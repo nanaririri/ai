@@ -972,11 +972,39 @@ function companyCard(c){
 }
 
 /* ============================= RENDER: MODAL (STEP 4) ============================= */
+function findCompanyAnywhere(name){
+  for(const mainKey of Object.keys(DATA)){
+    const main = DATA[mainKey];
+    for(const sub of main.subs){
+      for(const g of sub.groups){
+        const f = g.companies.find(x=>x.name===name);
+        if(f) return { company:f, mainKey, subId:sub.id, sub };
+      }
+    }
+  }
+  return null;
+}
 function showCompanyModalUI(name){
-  const s = getSub();
+  let s = getSub();
   let company = null;
-  s.groups.forEach(g=>{ const f = g.companies.find(x=>x.name===name); if(f) company = f; });
-  if(!company) return;
+  if(s){
+    s.groups.forEach(g=>{ const f = g.companies.find(x=>x.name===name); if(f) company = f; });
+  }
+  if(!company){
+    // fallback: state.subId may not match this company yet (e.g. history restore race) —
+    // locate it anywhere in the data and self-correct the active category before rendering.
+    const found = findCompanyAnywhere(name);
+    if(found){
+      state.mainKey = found.mainKey;
+      state.subId = found.subId;
+      company = found.company;
+      s = found.sub;
+    }
+  }
+  if(!company){
+    console.warn('[modal] company not found:', name);
+    return;
+  }
 
   const t = TIER_LABEL[company.tier];
   const products = PRODUCT_IMAGE_OVERRIDES[company.name] || getProducts(s.id);
